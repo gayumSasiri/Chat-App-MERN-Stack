@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req,res) => {
     try{
-        const {fullname,username,password,conformPassword,gender} = req.body;
+        const { fullName, username, password, conformPassword, gender } = req.body;
 
         if(password !== conformPassword) {
             return res.status(400).json({error:"Passwords don't match"})
@@ -24,7 +25,7 @@ export const signup = async (req,res) => {
         const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
         const newUser = new User ({
-            fullname,
+            fullName,
             username,
             password: hashedPassword,
             gender,
@@ -33,12 +34,13 @@ export const signup = async (req,res) => {
 
         if(newUser){
             //generate JWT token here
-            
+            generateTokenAndSetCookie(newUser._id, res);
+
             await newUser.save();
 
             res.status(201).json({
                 _id: newUser._id,
-                fullname: newUser.fullname,
+                fullName: newUser.fullName,
                 username: newUser.username,
                 profilePic : newUser.profilePic
             });
@@ -48,7 +50,7 @@ export const signup = async (req,res) => {
 
     } catch (error) {
         console.log("Error in signUp", error.message);
-        res.status(500).json({error: "Internl server Error"});
+        res.status(500).json({error: "Internel server Error"});
     }
 };
 
